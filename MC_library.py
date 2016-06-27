@@ -40,7 +40,21 @@ def mmTransform( T, sig, r, y, z, t=0):
     z = np.array(z)
     beta = 1./np.var(z)
     alpha = sig * (T-t)**0.5 / 2. - np.log(np.mean(np.exp(beta * sig * (T-t)**0.5 * z))) / (sig * (T-t) ** 0.5)
-    return alpha + beta * z
+    return (alpha + beta * z, alpha, beta)
+
+
+'''
+specific for 3.b.ii), which is the variance of standard BS call
+'''
+def getBSVar(S, K, T, sig, r, y, t=0):
+    _d_1 = (np.log(S/K) + ( r - y + sig **2/2)*(T-t)) / ( sig * (T-t)**0.5)
+    _d_2 = _d_1 - (sig * (T-t)**0.5)
+    _d_3 = _d_1 + (sig * (T-t)**0.5)
+
+    return ( S**2 * np.exp((2*r-2*y+sig**2)*(T-t)) *  scipy.stats.norm.cdf(_d_3) +
+            K**2 *scipy.stats.norm.cdf(_d_2) -
+            2*K*S* np.exp((r-y)*(T-t)) * scipy.stats.norm.cdf(_d_1) -
+            (bsCall(S, K, T, sig, r, y, t=t) * np.exp(r*(T-t))) ** 2  )
 
 '''
 standard call option evaluation
