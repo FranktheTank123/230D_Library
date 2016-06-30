@@ -3,26 +3,49 @@ The function library
 
 Modification log:
 
+6/29/2016 - enhance the functions, more taliored functions
+
 6/25/2016 - creation of the file
 
 '''
 
+import pandas as pd
 import numpy as np
 import scipy.stats
 import time
 
+
+'''
+return a dataframe containning the summary, given a np matrix. the summary
+is applied on each cols of the matrix
+'''
+def sampleSummary(sample):
+    result_ = pd.DataFrame()
+    result_['sample_size'] = [x.size for x in sample]
+    result_['mean'] = [np.mean(x) for x in sample]
+    result_['variance'] = [np.var(x) for x in sample]
+    result_['SD'] = [np.std(x) for x in sample]
+    result_['3rd_central_moment'] = [scipy.stats.moment(x, moment=3) for x in sample]
+    result_['skewness'] = [scipy.stats.moment(x-np.mean(x), moment=3)/(np.std(x)**3) for x in sample]
+    result_['4th_central_moment'] = [scipy.stats.moment(x, moment=4, axis=0) for x in sample]
+    result_['kurtosis'] = [scipy.stats.moment(x-np.mean(x), moment=4)/(np.std(x)**4) -3 for x in sample]
+    result_['Max'] = [np.max(x) for x in sample]
+    result_['Min'] = [np.min(x) for x in sample]
+    return result_
 
 
 '''
 Box-Muller implementation, note that if uni_array is odd, only the first n-1 elements will be used
 '''
 def BoxMuller(uni_array):
-    n = len(uni_array)
-    normal_array = [0]*n
-    for x in range(int(n/2)):
-        normal_array[2*x] = (-2*np.log(1-uni_array[2*x]))**0.5 * np.cos(2*np.pi*uni_array[2*x+1])
-        normal_array[2*x+1] = (-2*np.log(1-uni_array[2*x]))**0.5 * np.sin(2*np.pi*uni_array[2*x+1])
+    n = uni_array.size
+    if n%2: ## make sure the size is even
+        uni_array = uni_array[:-1]
+    normal_array = np.empty(n)
+    normal_array[::2] = (-2*np.log(1-uni_array[::2]))**0.5 * np.cos(2*np.pi*uni_array[1::2])
+    normal_array[1::2] = (-2*np.log(1-uni_array[::2]))**0.5 * np.sin(2*np.pi*uni_array[1::2])
     return normal_array
+
 
 
 '''
