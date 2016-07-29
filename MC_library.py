@@ -371,7 +371,7 @@ def callVega(S, K, T, sig, r, y, t=0):
     calculate the analytical BS call vega value
     '''
     _d_1 = (np.log(S/K) + (r-y+sig**2/2)*(T-t)) / (sig * (T-t)**0.5)
-    return S*np.exp(-y*(T-t))*scipy.stats.norm.cdf(_d_1)*(T-t)**0.5
+    return S*np.exp(-y*(T-t))*scipy.stats.norm.pdf(_d_1)*(T-t)**0.5
 
 
 def sinsitivity_wrapper(desired_dfs, shocks, S_t_mesh, normal_sample, MCWrapper,
